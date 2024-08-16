@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class RoomManager
@@ -10,7 +12,7 @@ public class RoomManager
     public Room currentRoom;
     public Vector3 checkPointPosition { get => data.checkPointPosition; set => data.checkPointPosition = value; }
 
-    public Room lastCheckPointRoom;
+    public int lastCheckPointRoomIdx { get => data.lastCheckPointRoomIdx; set => data.lastCheckPointRoomIdx = value; }
     public string lastCheckPointName { get => data.lastCheckPointName; set => data.lastCheckPointName = value; }
 
     public RoomManagerData data;
@@ -22,7 +24,16 @@ public class RoomManager
         GameObject[] roomObjs = GameObject.FindGameObjectsWithTag("Room");
 
         // roomObjs 배열을 이름을 기준으로 정렬
-        System.Array.Sort(roomObjs, (x, y) => x.name.CompareTo(y.name));
+        //System.Array.Sort(roomObjs, (x, y) => x.name.CompareTo(y.name));
+        Array.Sort(roomObjs, (x, y) =>
+        {
+            // 각 게임 오브젝트의 이름에서 숫자 추출
+            int xNum = int.Parse(Regex.Match(x.name, @"\d+").Value);
+            int yNum = int.Parse(Regex.Match(y.name, @"\d+").Value);
+
+            // 숫자 기준으로 비교
+            return xNum.CompareTo(yNum);
+        });
 
         rooms = new Room[roomObjs.Length];
 
@@ -62,7 +73,7 @@ public class RoomManager
         {
             if(rooms[i].checkPoint != null)
             {
-                lastCheckPointRoom = rooms[i];
+                lastCheckPointRoomIdx = i;
                 checkPointPosition = rooms[i].transform.position;
                 break;
             }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerComboAttackState : PlayerAttackState
 {
@@ -39,8 +40,6 @@ public class PlayerComboAttackState : PlayerAttackState
 
     public override void Update()
     {
-        base.Update();
-
         ForceMove();
 
         float normalizeTime = GetNormalizedTime(stateMachine.Player.Animator, "Attack");
@@ -90,6 +89,7 @@ public class PlayerComboAttackState : PlayerAttackState
 
         stateMachine.Player.ForceReceiver.Reset();
 
-        stateMachine.Player.ForceReceiver.AddForce(Vector2.right * attackInfoData.Force);
+        Vector2 tmpDir = stateMachine.Player.spriteRenderer.flipX ? Vector2.left : Vector2.right;
+        stateMachine.Player.Rigidbody.AddForce(tmpDir * attackInfoData.Force, ForceMode2D.Impulse);
     }
 }

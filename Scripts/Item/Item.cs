@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public abstract class Item : MonoBehaviour
@@ -8,10 +9,18 @@ public abstract class Item : MonoBehaviour
     [SerializeField] float maxTargetDistance = 10;
 
     protected Rigidbody2D rb;
+    [SerializeField] protected float obtainDelayTime = 0.5f;
 
-    private void Awake()
+    protected bool canObtain = false;
+
+    protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void OnEnable()
+    {
+        StartCoroutine(SetCanObtainAfterDelay(obtainDelayTime));
     }
 
     public void ObtainItem()
@@ -19,14 +28,16 @@ public abstract class Item : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void FixedUpdate()
-    {
-        ChasePlayer();
-    }
+    //private void FixedUpdate()
+    //{
+    //    if(canObtain)
+    //    {
+    //        ChasePlayer();
+    //    }
+    //}
 
-    protected abstract void OnCollisionEnter2D(Collision2D collision);
 
-    private void ChasePlayer()
+    public void ChasePlayer()
     {
         Vector3 targetPosition = GameManager.Instance.Player.transform.position;
 
@@ -38,5 +49,17 @@ public abstract class Item : MonoBehaviour
     }
 
     public abstract void Drop(Vector3 postion);
+
+
+    // 주어진 시간 후에 canObtain을 true로 설정
+    private IEnumerator SetCanObtainAfterDelay(float delay)
+    {
+        canObtain = false;
+        // 지정된 시간만큼 대기
+        yield return new WaitForSeconds(delay);
+
+        // canObtain을 true로 설정
+        canObtain = true;
+    }
 
 }

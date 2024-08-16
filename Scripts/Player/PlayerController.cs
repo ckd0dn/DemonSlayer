@@ -7,12 +7,14 @@ public class PlayerController : MonoBehaviour
     public PlayerInputs PlayerInputs { get; private set; }
     public PlayerInputs.PlayerActions PlayerActions { get; private set; }
     public PlayerInputs.UIActions UIActions { get; private set; }
+    public PlayerInputs.TutorialActions TutorialActions { get; private set; }
 
     private void Awake()
     {
         PlayerInputs = new PlayerInputs();
         PlayerActions = PlayerInputs.Player;
         UIActions = PlayerInputs.UI;
+        TutorialActions = PlayerInputs.Tutorial;
     }
 
     private void OnEnable()

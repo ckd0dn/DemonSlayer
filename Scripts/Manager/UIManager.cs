@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Build;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +16,12 @@ public class UIManager : Singleton<UIManager>
     public SkillShopUI skillShopUI;
     public FastTravelUI fastTravelUI;
     public SkillEquipMenu skillEquipMenu;
+    public BossUI bossUI;
+    public SkillUI skillUI;
+    public GetItemUI getItemUI;
+    public WorldCanvas worldCanvas;
+    public TutorialUI tutorialUI;   
+    public BuffIcon buffIcon;
 
     private Player player;
     public bool onUI = false; // UI Ȱ��ȭ ���� ����, �ʿ��Ѱ�??
@@ -25,7 +29,22 @@ public class UIManager : Singleton<UIManager>
 
     public delegate void OnUIEvent(bool state);
     public event OnUIEvent onUIEvent;
-    
+    protected override void Awake()
+    {
+        base.Awake();
+        // mainMenuUI가 null이면 초기화 start에서 진행하면 인터렉터블오브젝트에서 null이 발생함 
+        if (mainMenuUI == null)
+        {
+            mainMenuUI = Show<MainMenuUI>();
+            mainMenuUI.gameObject.SetActive(false);
+        }
+        if(pauseUI == null)
+        {
+            pauseUI = Show<PauseUI>();
+            pauseUI.gameObject.SetActive(false);    
+        }
+        SettingGameScene();
+    }
     private void Start()
     {        
         player = GameManager.Instance.Player;        
@@ -35,8 +54,6 @@ public class UIManager : Singleton<UIManager>
         player.Input.UIActions.Skill.started += context => ToggleUI(ref mainMenuUI, 1f, 1f, false, false, 1);
         player.Input.UIActions.Item.started += context => ToggleUI(ref mainMenuUI, 1f, 1f, false, false,2);
         player.Input.UIActions.Map.started += context => ToggleUI(ref mainMenuUI, 1f, 1f, false, false, 3);        
-
-        SettingGameScene();
     }
 
     public T Show<T>() where T : UIBase
@@ -54,10 +71,11 @@ public class UIManager : Singleton<UIManager>
     public void SettingGameScene()
     {
         // SettingGameObj("Stage1");
+        worldCanvas = Show<WorldCanvas>();
         ui = Show<UI>();
         soulUI = Show<SoulUI>();
-        mainMenuUI = Show<MainMenuUI>();
-        mainMenuUI.gameObject.SetActive(false);
+        bossUI = Show<BossUI>();
+        buffIcon = Show<BuffIcon>();
     }
 
     // ���� Toggle �Լ�
@@ -146,4 +164,5 @@ public class UIManager : Singleton<UIManager>
         onUI = state;
         onUIEvent?.Invoke(onUI);
     }
+
 }

@@ -12,7 +12,7 @@ public class PlayerSkillState : PlayerGroundState
 
     public override void Enter()
     {
-        stateMachine.MovementSpeedModifier = 0f;
+        stateMachine.Player.Rigidbody.velocity = Vector2.zero;
         base.Enter();
         StartAnimation(stateMachine.Player.AnimationData.SkillParameterHash);
     }

@@ -4,7 +4,8 @@ using UnityEngine;
 public class PlayerFirstSkillState : PlayerSkillState
 {
     public int SkillHash { get; set;}
-    int index = 0;
+    int index = 99;
+    public string skillAniName;
 
     public PlayerFirstSkillState(PlayerStateMachine stateMachine) : base(stateMachine)
     {
@@ -23,6 +24,7 @@ public class PlayerFirstSkillState : PlayerSkillState
         {
             index = 3;
         }
+        if (index == 99) return;
         if(stateMachine.Player.healthSystem.CurrentMana < stateMachine.Player.playerEquipSkill[index].MPCost)
         {
             stateMachine.ChangeState(stateMachine.IdleState);
@@ -34,12 +36,13 @@ public class PlayerFirstSkillState : PlayerSkillState
     {
         stateMachine.Player.isSkillActive = false;
         base.Exit();
+        if(index == 99) return;
         StopSkillState(index);
     }
 
     public override void Update()
     {
-        if (stateMachine.Player.IsAnimationFinished())
+        if (stateMachine.Player.IsAnimationFinishedWithName(stateMachine.Player.playerEquipSkill[index].AnimationName))
         {
             stateMachine.ChangeState(stateMachine.IdleState);
         }

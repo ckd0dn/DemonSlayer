@@ -1,11 +1,13 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HealthSystem : MonoBehaviour
 {
-    public float healthChangeDelay = .5f;
+    public float healthChangeDelay = 1f;
     [SerializeField] private int DamageClipIdx;
 
+    private DamageTextUI damageTextUI;
     private StatHandler statsHandler;
     public float timeSinceLastChange = float.MaxValue;
     [HideInInspector] public bool isInvincibility = false;
@@ -23,6 +25,7 @@ public class HealthSystem : MonoBehaviour
     public event Action OnManaZero;
 
     public LayerMask layerMask;
+    public float damagefontSize = 1f;
 
     [SerializeField] public float CurrentHealth { get => data.CurrentHealth; set => data.CurrentHealth = value; }
     [SerializeField] public float CurrentMana { get => data.CurrentMana; set => data.CurrentMana = value; }
@@ -34,6 +37,9 @@ public class HealthSystem : MonoBehaviour
     public float MaxStamina { get => data.MaxStamina; set => data.MaxStamina = value; }
 
     public HealthSystemData data;
+    public float playerTextYNum = .5f;
+
+    public bool isShieldBuff = false;
 
     private void Awake()
     {
@@ -70,7 +76,7 @@ public class HealthSystem : MonoBehaviour
                 CurrentStamina = playerStatsSO.stamina;
             }
         }
-        
+
     }
 
 
@@ -84,7 +90,6 @@ public class HealthSystem : MonoBehaviour
             //    OnInvincibilityEnd?.Invoke();
             //}
         }
-        ChangeMana(0.01f);
     }
 
     public bool ChangeHealth(float change)
@@ -99,6 +104,11 @@ public class HealthSystem : MonoBehaviour
             return false;
         }
 
+        if(isShieldBuff && transform.CompareTag("Player") && change < 0)
+        {
+            change *= (GameManager.Instance.Player.PlayerSkill.shiledValue);
+        }
+
         timeSinceLastChange = 0f;
         CurrentHealth += change;
         // 최솟값을 0, 최댓값을 MaxHealth로 하는 구문.
@@ -111,16 +121,22 @@ public class HealthSystem : MonoBehaviour
         {
             CallHealthChanged();
             CallDeath();
+            DamageTextMethod(change);
             return true;
         }
 
         if (change >= 0)
         {
             OnHeal?.Invoke();
+            CreateDamageText(new Vector3
+                    (this.gameObject.transform.position.x,
+                     this.gameObject.transform.position.y + playerTextYNum,
+                     this.gameObject.transform.position.z), change, Color.green);
         }
         else
         {
             OnDamage?.Invoke();
+            DamageTextMethod(change);
         }
 
         CallHealthChanged();
@@ -165,10 +181,37 @@ public class HealthSystem : MonoBehaviour
     {
         CurrentHealth = MaxHealth;
 
+        if (statsHandler == null) return;
+
         if (statsHandler.CurrentStat.statsSO is PlayerStatsSO)
         {
             CurrentMana = MaxMana;
             CurrentStamina = MaxStamina;
         }
+    }
+
+    public void DamageTextMethod(float change)
+    {
+        if (this.tag == "Player")
+        {
+            CreateDamageText(new Vector3
+                (this.gameObject.transform.position.x,
+                 this.gameObject.transform.position.y + playerTextYNum,
+                 this.gameObject.transform.position.z), change, Color.red);
+        }
+        else
+        {
+            CreateDamageText(new Vector3
+                (this.gameObject.transform.position.x + UnityEngine.Random.Range(-.5f, .5f),
+                 this.gameObject.transform.position.y + UnityEngine.Random.Range(2, 4),
+                 this.gameObject.transform.position.z), change, Color.red);
+        }
+    }
+
+    public void CreateDamageText(Vector3 pos, float damage, Color color)
+    {
+        Text dmgTxt = GameManager.Instance.damageTextPool.GetFromPool(UnityEngine.Random.Range(0, 4));
+        damageTextUI = dmgTxt.GetComponent<DamageTextUI>();
+        damageTextUI.Init(dmgTxt, pos, damage, color, damagefontSize);
     }
 }

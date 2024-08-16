@@ -2,51 +2,73 @@ using UnityEngine;
 
 public class PlayerDashState : PlayerBaseState
 {
+    float dashStartAnimeDelay = 0f;
+    bool dashStart = false;
     public PlayerDashState(PlayerStateMachine stateMachine) : base(stateMachine)
     {
     }
 
     public override void Enter()
     {
-        stateMachine.Player.PlayerSkill.DashStart();
-        //Vector2 tmpDir = stateMachine.Player.spriteRenderer.flipX ? Vector2.left : Vector2.right;
-        //Debug.Log($"flipX: {stateMachine.Player.spriteRenderer.flipX}");
-        //Debug.Log($"tmpDir: {tmpDir}");
-        //Debug.Log($"DashForce: {groundData.DashForce}");
-        //Debug.Log($"Rigidbody position: {stateMachine.Player.Rigidbody.position}");
-        //stateMachine.Player.Rigidbody.AddForce((tmpDir) * groundData.DashForce, ForceMode2D.Impulse);
-        //stateMachine.Player.Rigidbody.velocity = new Vector2(tmpDir.x * groundData.DashForce, stateMachine.Player.Rigidbody.velocity.y);
         base.Enter();
-        StartTriggerAnimation(stateMachine.Player.AnimationData.DashParameterHash);
+        //if (stateMachine.Player.PlayerSkill.isDashing) stateMachine.ChangeState(stateMachine.IdleState);
+        dashStart = true;
+        stateMachine.Player.healthSystem.isInvincibility = true;
+        stateMachine.Player.PlayerSkill.DashStart();
+        StartAnimation(stateMachine.Player.AnimationData.DashParameterHash);
         stateMachine.Player.gameObject.layer = 25;
-
     }
 
     public override void Exit() 
     { 
-        //stateMachine.Player.PlayerSkill.DashStop();
-        //stateMachine.MovementSpeedModifier = groundData.RunSpeedModifier;
         base.Exit();
-        StopTriggerAnimation(stateMachine.Player.AnimationData.DashParameterHash);
+        StopAnimation(stateMachine.Player.AnimationData.DashParameterHash);
         stateMachine.Player.gameObject.layer = 3;
-
+        stateMachine.Player.healthSystem.isInvincibility = false;
+        dashStart = false;
     }
 
     public override void Update()
     {
-      
-        if(stateMachine.Player.IsAnimationFinished())
+        //if(dashStart) DashTimeCheck();
+        if (stateMachine.Player.IsAnimationFinishedWithName("Dash"))
         {
             if (stateMachine.Player.Rigidbody.velocity.y <= 0)
             {
                 stateMachine.ChangeState(stateMachine.FallState);
                 return;
             }
-            else if(stateMachine.Player.isGrounded)
+            else if (stateMachine.Player.isGrounded)
             {
                 stateMachine.ChangeState(stateMachine.IdleState);
                 return;
             }
         }
+        //if (dashStartAnimeDelay > 1f)
+        //{
+        //    if (stateMachine.Player.Rigidbody.velocity.y <= 0)
+        //    {
+        //        stateMachine.ChangeState(stateMachine.FallState);
+        //        dashStartAnimeDelay = 0f;
+        //        dashStart = false;
+        //        return;
+        //    }
+        //    else if (stateMachine.Player.isGrounded)
+        //    {
+        //        stateMachine.ChangeState(stateMachine.IdleState);
+        //        dashStartAnimeDelay = 0f;
+        //        dashStart = false;
+        //        return;
+        //    }
+        //}
+        //else
+        //{
+        //    DashTimeCheck();
+        //}
+    }
+
+    public void DashTimeCheck()
+    {
+        dashStartAnimeDelay += Time.deltaTime;
     }
 }

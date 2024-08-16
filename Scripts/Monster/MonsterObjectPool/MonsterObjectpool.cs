@@ -7,13 +7,10 @@ public class MonsterObjectPool : MonoBehaviour
     public Transform[] spawnPoints; // 스폰 위치 배열
     public GameObject[] monsterPrefabs; // 몬스터 프리팹 배열
 
-    public float spawnInterval = 3f; // 몬스터 스폰 간격
-    public float initialSpawnDelay = 2f; // 초기 스폰 지연 시간
-
     private List<GameObject> monsterPool; // 몬스터 오브젝트 풀
     private List<int> availableSpawnPoints; // 스폰 가능한 위치 인덱스 리스트
 
-    
+
     private void Start()
     {
         // 몬스터 오브젝트 풀 초기화
@@ -26,7 +23,7 @@ public class MonsterObjectPool : MonoBehaviour
         {
             availableSpawnPoints.Add(i);
         }
-        Invoke("StartSpawning", initialSpawnDelay);
+        Invoke("StartSpawning", 10f);
     }
 
 
@@ -44,9 +41,8 @@ public class MonsterObjectPool : MonoBehaviour
             // 몬스터를 오브젝트 풀에서 가져오거나 생성
             GameObject monster = GetOrCreateMonsterFromPool();
 
-            MonsterController monsterController = monster.GetComponent<MonsterController>();
-
-            monsterController.healthSystem.ResetHealth();
+            Monster monsterController = monster.GetComponent<Monster>();
+            monsterController.MonsterReset();
             // 몬스터를 스폰 위치에 스폰
             monster.transform.position = spawnPoint.position;
             monster.SetActive(true);
@@ -56,7 +52,7 @@ public class MonsterObjectPool : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(spawnInterval);
+            yield return new WaitForSeconds(10f);
 
             // 스폰 가능한 위치가 있는지 확인
             if (availableSpawnPoints.Count == 0)
@@ -119,7 +115,7 @@ public class MonsterObjectPool : MonoBehaviour
         return monster;
     }
 
-    public void SaveCheckpoint()
+    public void SaveCheckpointMonsterSpawn()
     {
         DeactivateAllMonsters();
         SpawnAllMonsters();

@@ -39,7 +39,6 @@ public class PlayerAirState : PlayerBaseState
 
     protected override void OnJumpStarted(InputAction.CallbackContext context)
     {
-        if (UIManager.Instance.onUI) return;
         base.OnJumpStarted(context);
         if (stateMachine.IsDoubleJumped) return;
         //if (!stateMachine.Player.DoubleJumpGet) return;
@@ -50,10 +49,10 @@ public class PlayerAirState : PlayerBaseState
 
     protected override void OnDodgeStarted(InputAction.CallbackContext context)
     {
-        if (UIManager.Instance.onUI) return;
         base.OnDodgeStarted(context);
         if (stateMachine.Player.DashGet)
         {
+            if(!stateMachine.Player.PlayerSkill.isDashing)
             stateMachine.ChangeState(stateMachine.DashState);
         }
     }

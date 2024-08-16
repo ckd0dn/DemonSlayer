@@ -20,6 +20,7 @@ public class PlayerDoubleJumpState : PlayerAirState
     { 
         base.Exit();
         StopAnimation(stateMachine.Player.AnimationData.DoubleJumpParameterHash);
+        
     }
 
     public override void Update()

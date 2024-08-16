@@ -1,4 +1,4 @@
-using Unity.VisualScripting;
+using System.Collections;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -7,23 +7,30 @@ public class Bullet : MonoBehaviour
     public HealthSystem playerHealth;
     private Vector2 BulletPostion;
     private Rigidbody2D rb;
-
-
-    private void OnEnable()
-    {
-        Invoke("FalseBullet", 3f); 
-    }
-
-    private void OnDisable()
-    {
-        CancelInvoke(); 
-    }
+    float bulletDamage;
+    float bulletDestoryTime;
+    float bulletAnitime;
+    WaitForSeconds bulletAniDelayTimeWaitSeconds;
 
     private void Awake()
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         playerHealth = GameManager.Instance.Player.healthSystem;
+        bulletDamage = 10f;
+        bulletDestoryTime = 2f;
+        bulletAnitime = 0.35f;
+        bulletAniDelayTimeWaitSeconds = new WaitForSeconds(bulletAnitime);
+    }
+
+    private void OnEnable()
+    {
+        Invoke("FalseBullet", bulletDestoryTime);
+    }
+
+    private void OnDisable()
+    {
+        CancelInvoke();
     }
 
     public void SetBulletPosition(Vector2 direction)
@@ -40,22 +47,24 @@ public class Bullet : MonoBehaviour
             {
                 if (playerHealth.CurrentHealth > 0)
                 {
-                    playerHealth.ChangeHealth(-10); 
-                    anim.SetBool(AnimationHashes.Destory, true);
-                    gameObject.SetActive(false);
+                    playerHealth.ChangeHealth(-bulletDamage);
+                    StartCoroutine(BulletAnimation());
                 }
             }
-            gameObject.SetActive(false); 
         }
-    }
-
-    private void OnBecameInvisible() // 카메라 밖에 나갔을 때 사라짐
-    {
-        gameObject.SetActive(false);
     }
 
     private void FalseBullet()
     {
-        gameObject.SetActive(false); 
+        StartCoroutine(BulletAnimation());
+    }
+    public IEnumerator BulletAnimation()
+    {
+        if (gameObject.activeSelf)
+        {
+            anim.SetBool(AnimationHashes.Destory, true);
+            yield return bulletAniDelayTimeWaitSeconds;
+            gameObject.SetActive(false);
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿public class PlayerRunState : PlayerGroundState
+﻿using UnityEngine.InputSystem;
+
+public class PlayerRunState : PlayerGroundState
 {
     public PlayerRunState(PlayerStateMachine stateMachine) : base(stateMachine)
     {
@@ -15,5 +17,25 @@
     {
         base.Exit();
         StopAnimation(stateMachine.Player.AnimationData.RunParameterHash);
+    }
+
+    protected override void OnDodgeStarted(InputAction.CallbackContext context)
+    {
+        base.OnDodgeStarted(context);
+    }
+
+    protected override void OnFirstSkillStarted(InputAction.CallbackContext context)
+    {
+        base.OnFirstSkillStarted(context);
+    }
+
+    protected override void OnSecondSkillStarted(InputAction.CallbackContext context)
+    {
+        base.OnSecondSkillStarted(context);
+    }
+
+    protected override void OnThirdSkillStarted(InputAction.CallbackContext context)
+    {
+        base.OnThirdSkillStarted(context);
     }
 }

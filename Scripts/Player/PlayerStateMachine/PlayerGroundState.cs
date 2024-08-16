@@ -1,5 +1,6 @@
 ﻿using UnityEngine.InputSystem;
 using UnityEngine;
+using System;
 
 public class PlayerGroundState : PlayerBaseState
 {
@@ -13,6 +14,7 @@ public class PlayerGroundState : PlayerBaseState
         StartAnimation(stateMachine.Player.AnimationData.GroundParameterHash);
         stateMachine.Player.isJumped = false;
         stateMachine.IsDoubleJumped = false;
+        stateMachine.Player.PlayerSkill.isDashing = false;
     }
 
     public override void Exit()
@@ -45,7 +47,6 @@ public class PlayerGroundState : PlayerBaseState
     protected override void OnMovementCanceled(InputAction.CallbackContext context)
     {
         if (stateMachine.MovementInput == Vector2.zero) return;
-
         stateMachine.ChangeState(stateMachine.IdleState);
 
         base.OnMovementCanceled(context);
@@ -76,24 +77,48 @@ public class PlayerGroundState : PlayerBaseState
         {
             stateMachine.ChangeState(stateMachine.DashState);
         }
-        else if(!stateMachine.Player.DashGet)
+        else if(!stateMachine.Player.DashGet && !stateMachine.IsRoll)
         stateMachine.ChangeState(stateMachine.RollState);
     }
 
     protected override void OnFirstSkillStarted(InputAction.CallbackContext context)
     {
+        if (stateMachine.Player.firstSkillSlot == true)
+        {
+            if (stateMachine.Player.playerEquipSkill[0] == null) return;
+        }
+        else
+        {
+            if (stateMachine.Player.playerEquipSkill[3] == null) return;
+        }
         base.OnFirstSkillStarted(context);
         stateMachine.ChangeState(stateMachine.FirstSkillState);
     }
 
     protected override void OnSecondSkillStarted(InputAction.CallbackContext context)
     {
+        if (stateMachine.Player.firstSkillSlot == true)
+        {
+            if (stateMachine.Player.playerEquipSkill[1] == null) return;
+        }
+        else
+        {
+            if (stateMachine.Player.playerEquipSkill[4] == null) return;
+        }
         base.OnSecondSkillStarted(context);
         stateMachine.ChangeState(stateMachine.SecondSkillState);
     }
 
     protected override void OnThirdSkillStarted(InputAction.CallbackContext context)
     {
+        if (stateMachine.Player.firstSkillSlot == true)
+        {
+            if (stateMachine.Player.playerEquipSkill[2] == null) return;
+        }
+        else
+        {
+            if (stateMachine.Player.playerEquipSkill[5] == null) return;
+        }
         base.OnThirdSkillStarted(context);
         stateMachine.ChangeState(stateMachine.ThirdSkillState);
     }

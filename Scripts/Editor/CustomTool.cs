@@ -27,7 +27,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("StartScene");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/StartScene.unity");
+            }
         }
 
         if (GUILayout.Button("∞‘¿” æ¿"))
@@ -35,7 +39,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("GameScene");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/GameScene.unity");
+            }
         }
 
         if (GUILayout.Button("¿Œ∆Æ∑Œ æ¿"))
@@ -43,7 +51,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("IntroScene");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/IntroScene.unity");
+            }
         }
 
         if (GUILayout.Button("YCH æ¿"))
@@ -51,7 +63,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("YCH");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/YCH.unity");
+            }
         }
 
         if (GUILayout.Button("PCW æ¿"))
@@ -59,7 +75,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("PCW");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/PCW.unity");
+            }
         }
 
         if (GUILayout.Button("KYS æ¿"))
@@ -67,7 +87,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("KYS");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/KYS.unity");
+            }
         }
 
         if (GUILayout.Button("PSJ æ¿"))
@@ -75,7 +99,11 @@ public class CustomTool : EditorWindow
             if (Application.isPlaying)
                 SceneManager.LoadScene("PSJ");
             else
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                EditorSceneManager.SaveScene(currentScene);
                 EditorSceneManager.OpenScene("Assets/Scenes/PSJ.unity");
+            }
         }
     }
 }

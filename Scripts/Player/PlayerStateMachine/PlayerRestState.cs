@@ -10,6 +10,7 @@ public class PlayerRestState : PlayerGroundState
 
     public override void Enter()
     {
+        stateMachine.Player.Rigidbody.velocity = Vector3.zero;
         base.Enter();
         StartAnimation(stateMachine.Player.AnimationData.FullRestParameterHash);
     }

@@ -16,29 +16,41 @@ public class PlayerAttack : MonoBehaviour
     SoundManager soundManager;
 
     [SerializeField] private LayerMask layerMask;
-    private float playerAtk;
-    private float firstAttackDamage;
-    private float secondAttackDamage;
-    private float thirdAttackDamage;
+    public float playerAtk;
+    public float playerDamage;
+    [SerializeField] private float firstAttackValue = 1;
+    [SerializeField] private float secondAttackValue = 1.2f;
+    [SerializeField] private float thirdAttackValue = 1.5f;
 
-    private float airAttackDamage;
+    [SerializeField] private float airAttackValue = 0.7f;
+
+    public float getManaAmount = 5f;
 
     private void Start()
     {
         player = GetComponentInParent<Player>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-        playerAtk = GameManager.Instance.Player.StatHandler.CurrentStat.statsSO.damage;
-
-        firstAttackDamage = playerAtk * 1;
-        secondAttackDamage = playerAtk * 1.2f;
-        thirdAttackDamage = playerAtk * 1.5f;
-
-        airAttackDamage = playerAtk * 1;
+        UpdatePlayerAtk();
 
         soundManager = SoundManager.Instance;
     }
 
+    public void UpdatePlayerAtk()
+    {
+        playerAtk = GameManager.Instance.Player.StatHandler.CurrentStat.statsSO.damage;
+        playerDamage = playerAtk;
+    }
+
+    public void ChangeAtk(float amount)
+    {
+        playerAtk = GameManager.Instance.Player.StatHandler.CurrentStat.statsSO.damage;
+
+        if(amount > 0)
+        {
+            playerDamage = playerAtk * amount;
+        }
+    }
 
     public void PerformFirstAttack()
     {
@@ -57,7 +69,8 @@ public class PlayerAttack : MonoBehaviour
                 HealthSystem enemyHealth = enemy.collider.gameObject.GetComponent<HealthSystem>();
                 if (enemyHealth != null)
                 {
-                    enemyHealth.ChangeHealth(-firstAttackDamage);
+                    enemyHealth.ChangeHealth(-playerDamage * firstAttackValue);
+                    player.healthSystem.ChangeMana(getManaAmount);
                 }
             }
         }
@@ -80,7 +93,8 @@ public class PlayerAttack : MonoBehaviour
                 HealthSystem enemyHealth = enemy.collider.gameObject.GetComponent<HealthSystem>();
                 if (enemyHealth != null)
                 {
-                    enemyHealth.ChangeHealth(-secondAttackDamage);
+                    enemyHealth.ChangeHealth(-playerDamage * secondAttackValue);
+                    player.healthSystem.ChangeMana(getManaAmount);
                 }
             }
         }
@@ -103,7 +117,8 @@ public class PlayerAttack : MonoBehaviour
                 HealthSystem enemyHealth = enemy.collider.gameObject.GetComponent<HealthSystem>();
                 if (enemyHealth != null)
                 {
-                    enemyHealth.ChangeHealth(-thirdAttackDamage);
+                    enemyHealth.ChangeHealth(-playerDamage * thirdAttackValue);
+                    player.healthSystem.ChangeMana(getManaAmount);
                 }
             }
         }
@@ -129,9 +144,11 @@ public class PlayerAttack : MonoBehaviour
 
                 if (enemyHealth != null)
                 {
-                    enemyHealth.ChangeHealth(-airAttackDamage);
+                    enemyHealth.ChangeHealth(-playerDamage * airAttackValue);
+                    player.healthSystem.ChangeMana(getManaAmount);
                     yield return airAttackWait;
-                    enemyHealth.ChangeHealth(-airAttackDamage);
+                    enemyHealth.ChangeHealth(-playerDamage * airAttackValue);
+                    player.healthSystem.ChangeMana(getManaAmount);
                 }
             }
         }

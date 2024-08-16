@@ -2,13 +2,22 @@
 
 public class Portal : InteractableObject
 {
-    Room teleportRoom; 
+    Room teleportRoom;
+    private Room myroom;
     public Transform teleportPosition;
+
+    private void Awake()
+    {
+        myroom = GetComponentInParent<Room>();
+    }
 
     protected override void Start()
     {
         base.Start();
-        gameObject.SetActive(false);
+        if(myroom.IsBossAlive)
+        {
+            gameObject.SetActive(false);
+        }        
         teleportRoom = teleportPosition.GetComponentInParent<Room>();
     }
 

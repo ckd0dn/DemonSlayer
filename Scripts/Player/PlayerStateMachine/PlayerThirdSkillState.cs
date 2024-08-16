@@ -8,7 +8,7 @@ public class PlayerThirdSkillState : PlayerSkillState
     {
     }
     public int SkillHash { get; set; }
-    int index = 2;
+    int index = 99;
     public override void Enter()
     {
         stateMachine.Player.isSkillActive = true;
@@ -21,6 +21,7 @@ public class PlayerThirdSkillState : PlayerSkillState
         {
             index = 5;
         }
+        if (index == 99) return;
         if (stateMachine.Player.healthSystem.CurrentMana < stateMachine.Player.playerEquipSkill[index].MPCost)
         {
             stateMachine.ChangeState(stateMachine.IdleState);
@@ -32,12 +33,13 @@ public class PlayerThirdSkillState : PlayerSkillState
     {
         stateMachine.Player.isSkillActive = false;
         base.Exit();
+        if (index == 99) return;
         StopSkillState(index);
     }
 
     public override void Update()
     {
-        if (stateMachine.Player.IsAnimationFinished())
+        if (stateMachine.Player.IsAnimationFinishedWithName(stateMachine.Player.playerEquipSkill[index].AnimationName))
         {
             stateMachine.ChangeState(stateMachine.IdleState);
         }

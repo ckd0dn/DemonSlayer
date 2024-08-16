@@ -13,13 +13,13 @@ public class PlayerHurtState : PlayerBaseState
         if(stateMachine.ReturnCurrentState(stateMachine.SkillState)) return;
         //stateMachine.MovementSpeedModifier = groundData.WalkSpeedModifier;
         base.Enter();
-        StartTriggerAnimation(stateMachine.Player.AnimationData.HurtParameterHash);       
+        StartAnimation(stateMachine.Player.AnimationData.HurtParameterHash);       
     }
 
     public override void Exit() 
     {
         base.Exit();
-        StopTriggerAnimation(stateMachine.Player.AnimationData.HurtParameterHash);
+        StopAnimation(stateMachine.Player.AnimationData.HurtParameterHash);
     }
 
     public override void Update()

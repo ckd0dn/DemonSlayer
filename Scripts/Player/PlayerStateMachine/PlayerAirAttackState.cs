@@ -10,12 +10,14 @@ public class PlayerAirAttackState : PlayerAirState
 
     public override void Enter()
     {
+        stateMachine.Player.preventFlipX = true;
         base.Enter();
         StartTriggerAnimation(stateMachine.Player.AnimationData.AirAttackParameterHash);
     }
 
     public override void Exit()
     {
+        stateMachine.Player.preventFlipX = false;
         base.Exit();
         StopTriggerAnimation(stateMachine.Player.AnimationData.AirAttackParameterHash);
     }

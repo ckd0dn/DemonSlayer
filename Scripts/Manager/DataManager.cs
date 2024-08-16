@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public enum ESaveFile
 {
@@ -37,8 +32,8 @@ public class DataManager : Singleton<DataManager>
         Datas datas = new Datas();
 
         // 플레이어 데이터 저장
+        datas.playerData = GameManager.Instance.Player.data;
         datas.playerData.healthSystemData = GameManager.Instance.Player.healthSystem.data;
-        datas.playerData.soulCount = GameManager.Instance.Player.soulCount;
 
         // 방 정보 저장
         datas.roomManagerData = GameManager.Instance.roomManager.data;
@@ -51,12 +46,59 @@ public class DataManager : Singleton<DataManager>
         }
         // 플레이 타임 저장
         datas.playTime = GameManager.Instance.timeManager.playTime;
-
         datas.isPlayIntro = true;
 
-        string json = JsonUtility.ToJson(datas);  
+        // 체크포인트 데이터 저장
+        CheckpointManager checkpointManager = GameManager.Instance.checkpointManager;
+        datas.checkpoints = new CheckpointData[checkpointManager.checkpoints.Count];
+        int index = 0;
+        foreach (var checkpoint in checkpointManager.checkpoints.Values)
+        {
+            datas.checkpoints[index] = new CheckpointData
+            {
+                checkPointName = checkpoint.checkPointName,
+                isDiscovered = checkpoint.isDiscovered,
+            };
+            index++;
+        }
+
+        // 아이템 저장
+        RelicsItemSlot[] itemSlots = UIManager.Instance.mainMenuUI.invenItemRelics.relicsItemSlots;
+        RelicsEquipSlot[] equipSlots = UIManager.Instance.mainMenuUI.invenEquipRelics.relicsEquipSlots;
+
+        datas.playerItemData.invenItemListSO = new ItemSO[itemSlots.Length];
+        datas.playerItemData.equipItemListSO = new ItemSO[equipSlots.Length];
+
+        for (int i = 0; i < itemSlots.Length; i++)
+        {
+            RelicsItemSlot item = itemSlots[i];
+            datas.playerItemData.invenItemListSO[i] = item.itemData;
+        }
+
+        for (int i = 0; i < equipSlots.Length; i++)
+        {
+            RelicsEquipSlot item = equipSlots[i];
+            datas.playerItemData.equipItemListSO[i] = item.EquipitemData;
+        }
+
+        // 스킬 저장
+        datas.skillData.hasSkillListSO = GameManager.Instance.Player.PlayerHasSkill.playerHasSkills;
+        datas.skillData.equipSkillListSO = GameManager.Instance.Player.playerEquipSkill;
+
+        // 필드 아이템 저장
+        datas.itemDatas = new ItemData[GameManager.Instance.itemManager.items.Length];
+
+        for (int i = 0; i < GameManager.Instance.itemManager.items.Length; i++)
+        {
+            datas.itemDatas[i].isGet = GameManager.Instance.itemManager.items[i].isGet;
+            datas.itemDatas[i].itemSO = GameManager.Instance.itemManager.items[i].itemSO;
+        }
+
+        string json = JsonUtility.ToJson(datas);
 
         File.WriteAllText(baseFilePath + currentSaveFile, json);
+
+        UIManager.Instance.ui.saveUI.Show();
     }
 
 
@@ -71,8 +113,8 @@ public class DataManager : Singleton<DataManager>
             Datas datas = JsonUtility.FromJson<Datas>(json);
 
             // 플레이어 데이터 불러오기
+            GameManager.Instance.Player.data = datas.playerData;
             GameManager.Instance.Player.healthSystem.data = datas.playerData.healthSystemData;
-            GameManager.Instance.Player.soulCount = datas.playerData.soulCount;
 
             // 방 정보 불러오기
             GameManager.Instance.roomManager.data = datas.roomManagerData;
@@ -86,8 +128,48 @@ public class DataManager : Singleton<DataManager>
             // 플레이 타임 불러오기
             GameManager.Instance.timeManager.loadTime = datas.playTime;
 
+            // 체크포인트 데이터 불러오기
+            CheckpointManager checkpointManager = GameManager.Instance.checkpointManager;
+            foreach (var checkpointData in datas.checkpoints)
+            {
+                if (checkpointManager.checkpoints.TryGetValue(checkpointData.checkPointName, out CheckPoint checkpoint))
+                {
+                    checkpoint.isDiscovered = checkpointData.isDiscovered;
+                }
+            }
+
             // 마지막 체크포인트 지점을 플레이어 위치변경
             GameManager.Instance.Player.transform.position = GameManager.Instance.roomManager.checkPointPosition;
+
+            // 아이템 불러오기
+            ItemSO[] invenItemListSO = datas.playerItemData.invenItemListSO;
+            ItemSO[] equipItemListSO = datas.playerItemData.equipItemListSO;
+
+            for (int i = 0; i < invenItemListSO.Length; i++)
+            {
+                UIManager.Instance.mainMenuUI.AddItemToInventory(invenItemListSO[i]);
+            }
+
+            for (int i = 0; i < equipItemListSO.Length; i++)
+            {
+                UIManager.Instance.mainMenuUI.invenEquipRelics.AddEquipItemToSlot(equipItemListSO[i]);
+                UIManager.Instance.mainMenuUI.invenEquipRelics.relicsEquipSlots[i].AddStat();
+            }
+
+            // 스킬 불러오기
+            GameManager.Instance.Player.PlayerHasSkill.playerHasSkills = datas.skillData.hasSkillListSO;
+            GameManager.Instance.Player.playerEquipSkill = datas.skillData.equipSkillListSO;
+
+            // 필드 아이템 불러오기
+            for (int i = 0; i < datas.itemDatas.Length; i++)
+            {
+                GameManager.Instance.itemManager.items[i].isGet = datas.itemDatas[i].isGet;
+                GameManager.Instance.itemManager.items[i].itemSO = datas.itemDatas[i].itemSO;
+            }
+            // isGet이면 파괴
+            GameManager.Instance.itemManager.DestroyItem();
+
+            GameManager.Instance.Player.stateMachine.ChangeState(GameManager.Instance.Player.stateMachine.IdleState);
         }
     }
 
@@ -159,4 +241,18 @@ public class DataManager : Singleton<DataManager>
         }
     }
 
+    public Datas GetData()
+    {
+        Datas datas = new Datas();
+
+        if (File.Exists(baseFilePath + currentSaveFile))
+        {
+            // 불러올 데이터가 있다.
+
+            string json = File.ReadAllText(baseFilePath + currentSaveFile);
+            datas = JsonUtility.FromJson<Datas>(json);
+        }
+
+        return datas;
+    }
 }

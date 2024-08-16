@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Rendering;
@@ -26,6 +27,7 @@ public class SoundManager : Singleton<SoundManager>
     public ObjectPool objectPool;
 
     public GameObject SoundSetting;
+    public Button CloseBtn;
 
     protected override void Awake()
     {
@@ -35,6 +37,7 @@ public class SoundManager : Singleton<SoundManager>
 
         bgmSlider.onValueChanged.AddListener(SetMusicVolume);
         sfxSlider.onValueChanged.AddListener(SetSFXVolume);
+        CloseBtn.onClick.AddListener(ClolseSettingBtn);
     }
     private void SetSFXVolume(float volume)
     {
@@ -83,6 +86,26 @@ public class SoundManager : Singleton<SoundManager>
         obj.SetActive(true);
         SoundSource soundSource = obj.GetComponent<SoundSource>();
         soundSource.Play(clip, sfxVolume, soundEffectPitchVariance);
+    }
+
+      public void WaitCurrentBgmAndPlayNext(AudioClip clip, AudioClip nextClip)
+      {
+          StartCoroutine(WaitCurrentBgmAndPlayNextCor(clip, nextClip));
+      }
+
+    private IEnumerator WaitCurrentBgmAndPlayNextCor(AudioClip clip, AudioClip nextClip)
+    {
+        if (bgmAudioSource.isPlaying) bgmAudioSource.Stop();
+
+        bgmAudioSource.loop = false;
+        bgmAudioSource.clip = clip;
+        bgmAudioSource.Play();
+
+        yield return new WaitForSeconds(clip.length);
+
+        bgmAudioSource.loop = true;
+        bgmAudioSource.clip = nextClip;
+        bgmAudioSource.Play();
     }
 
 

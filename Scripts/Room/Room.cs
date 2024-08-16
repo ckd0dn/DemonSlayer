@@ -28,22 +28,29 @@ public class Room : MonoBehaviour
     [Header("Sound")]
     public AudioClip bossBgmClip;
 
+    [HideInInspector]
+    public MonsterObjectPool monsterObjectPool;
 
     private void Awake()
     {
         camCollider2D = GetComponent<PolygonCollider2D>();
+        monsterObjectPool = GetComponent<MonsterObjectPool>();
         IsBossAlive = true;
     }
 
     private void Start()
     {
+        bossUI = UIManager.Instance.bossUI;
+
         cinemachineConfiner2D = GameManager.Instance.virtualCamera.GetComponent<CinemachineConfiner2D>();
-        bossUI = FindObjectOfType<BossUI>();
 
         if (isBossRoom)
         {
-            bossRoomBarrier.SetActive(false);
+            DisableBarrier();
         }
+
+        // 플레이어가 죽은경우 배리어 비활성화
+        GameManager.Instance.Player.healthSystem.OnDeath += DisableBarrier;
         
     }
 
@@ -74,12 +81,13 @@ public class Room : MonoBehaviour
                     {
                         SoundManager.Instance.PlayBGM(bossBgmClip);
 
-                        bossUI.gameObject.SetActive(true);
+                        // bossUI.gameObject.SetActive(true);
 
                         bossUI.ShowBossUI();
 
                         // 보스방 배리어 타일 활성화
                         bossRoomBarrier.SetActive(true);
+
                     }
                     else
                     {
@@ -122,4 +130,9 @@ public class Room : MonoBehaviour
        }
     }
 
+    void DisableBarrier()
+    {
+        if(bossRoomBarrier != null)
+        bossRoomBarrier.SetActive(false);
+    }
 }

@@ -7,26 +7,26 @@ using UnityEngine.InputSystem.XR.Haptics;
 public class StatHandler : MonoBehaviour
 {
     // 기본 스탯과 버프 스탯들의 능력치를 종합해서 스탯을 계산하는 컴포넌트
-    [SerializeField] private Stats baseStat;
+    public Stats baseStat;
+    public PlayerAttack playerAttack;
     public Stats CurrentStat { get; private set; } = new();
 
     public List<Stats> statsModifiers = new List<Stats>();
 
     private readonly float MinAttackDelay = 0.03f;
     private readonly int MinAttackPower = 1;
-    private readonly float MinAttackSize = 0.4f;
-    private readonly float MinAttackSpeed = 0.1f;
-
-    private readonly float MinSpeed = 0.8f;
-
     private readonly int MinMaxHealth = 5;
     public event Action StatChange;
 
     private void Awake()
     {
+        playerAttack = GameManager.Instance.Player.PlayerAttack;
         SetBaseStats();
+    }
+
+    private void Start()
+    {
         UpdateCharacterStat();
-        
     }
     private void SetBaseStats()
     {
@@ -38,7 +38,7 @@ public class StatHandler : MonoBehaviour
         }
     }
 
-    private void UpdateCharacterStat()
+    public void UpdateCharacterStat()
     {
         ApplyStatModifier(baseStat);
 
@@ -46,6 +46,7 @@ public class StatHandler : MonoBehaviour
         {
             ApplyStatModifier(stat);
         }
+        playerAttack.UpdatePlayerAtk();
     }
 
     public void AddStatModifier(Stats modifier)
@@ -84,15 +85,15 @@ public class StatHandler : MonoBehaviour
     {
         if (CurrentStat.statsSO == null || modifier.statsSO == null) return;
 
-        var currentAttack = CurrentStat.statsSO;
-        var newAttack = modifier.statsSO;
+        CurrentStat.statsSO.delay = Mathf.Max(operation(CurrentStat.statsSO.delay, modifier.statsSO.delay), MinAttackDelay);
+        CurrentStat.statsSO.damage = Mathf.Max((int)operation(CurrentStat.statsSO.damage, modifier.statsSO.damage), MinAttackPower);
 
-        currentAttack.delay = Mathf.Max(operation(currentAttack.delay, newAttack.delay), MinAttackDelay);
-        currentAttack.damage = (int)Mathf.Max(operation(currentAttack.damage, newAttack.damage), MinAttackPower);
     }
 
     private void UpdateBasicStats(Func<float, float, float> operation, Stats modifier)
     {
+        if (CurrentStat.statsSO == null || modifier.statsSO == null) return;
+
         CurrentStat.maxHealth = Mathf.Max((int)operation(CurrentStat.maxHealth, modifier.statsSO.hp), MinMaxHealth);
         OnUpdateBasicStat();
     }

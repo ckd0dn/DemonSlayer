@@ -11,7 +11,7 @@ public enum BTNodeState
 public abstract class BTNode
 {
     // 트리 선언
-    protected List<BTNode> children = new List<BTNode>();
+    public List<BTNode> children = new List<BTNode>();
 
     // 자식 노드 추가 함수
     public void AddChild(BTNode node)

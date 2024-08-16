@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -10,26 +11,48 @@ public class Soul : Item
     [SerializeField] protected float upForce; // 초기 위로 가는 힘
 
     [SerializeField] private AudioClip obtainClip;
+    [SerializeField] private float obtainDistance = 0.1f;
 
-    protected override void OnCollisionEnter2D(Collision2D collision)
+    //private void OnCollisionEnter2D(Collision2D collision)
+    //{
+    //    if (collision.gameObject.CompareTag("Player"))
+    //    {
+    //        ObtainItem();
+    //        ObtainSoul();
+    //    }
+    //}
+
+    protected override void Awake()
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            ObtainItem();
-            ObtainSoul();
-        }
+        base.Awake();
     }
-    
-    void Start()
+
+    private void Start()
     {
         soulUI = UIManager.Instance.soulUI;
         player = GameManager.Instance.Player;
     }
+
+    private void FixedUpdate()
+    {
+        if (canObtain)
+        {
+            ChasePlayer();
+            ObtainSoul();
+        }
+    }
+
     public void ObtainSoul()
     {
-        player.soulCount++;
-        soulUI.UpdateSoulUI();
-        SoundManager.Instance.PlaySFX(obtainClip);
+        Vector3 targetPosition = GameManager.Instance.Player.transform.position;
+
+        if (Vector3.Distance(targetPosition, transform.position) <= obtainDistance)
+        {
+            ObtainItem();
+            player.soulCount++;
+            soulUI.UpdateSoulUI();
+            SoundManager.Instance.PlaySFX(obtainClip);
+        }
     }
 
     public override void Drop(Vector3 postion)

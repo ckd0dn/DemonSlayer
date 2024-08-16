@@ -5,4 +5,5 @@ using UnityEngine;
 public class UI : UIBase
 {
     public SkillUI skillUI;
+    public SaveUI saveUI;
 }

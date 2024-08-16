@@ -1,5 +1,4 @@
-﻿using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerBaseState : IState
@@ -170,14 +169,10 @@ public class PlayerBaseState : IState
         Vector2 rb = stateMachine.Player.Rigidbody.velocity;
         rb.x = direction.x * movementSpeed;
         stateMachine.Player.Rigidbody.velocity = rb;
-
-        if (rb.x > 0)
+        if(!stateMachine.Player.preventFlipX)
         {
-            stateMachine.Player.spriteRenderer.flipX = false;
-        }
-        else if (rb.x < 0)
-        {
-            stateMachine.Player.spriteRenderer.flipX = true;
+            if (rb.x != 0)
+            { stateMachine.Player.FlipSprite(rb.x < 0); }
         }
     }
 

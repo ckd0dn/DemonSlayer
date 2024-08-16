@@ -8,39 +8,33 @@ using UnityEngine.InputSystem;
 public abstract class InteractableObject : MonoBehaviour
 {
     protected Player player;
-    [SerializeField] protected GameObject interactText;
+    public GameObject interactText;
     [SerializeField] protected string InteractTextDescription;
-    MainMenuUI mainMenuUI;
+    protected bool canInteract = true;
+
     protected virtual void Start()
     {
         player = GameManager.Instance.Player;
-        mainMenuUI = UIManager.Instance.mainMenuUI;
         if (interactText != null)
         {
             interactText.GetComponentInChildren<TextMeshProUGUI>().text = InteractTextDescription;
         }
     }
 
-    public virtual void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && canInteract)
         {
             player.Input.PlayerActions.Interaction.started += OnInteract;
-            mainMenuUI.invenItemRelics.BtnActive = true;
-            mainMenuUI.invenEquipRelics.BtnActive = true;
-            ItemUIUpdate();
             ShowInteractText();
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    public void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player")) 
+        if (collision.CompareTag("Player") && canInteract) 
         {
             player.Input.PlayerActions.Interaction.started -= OnInteract;
-            mainMenuUI.invenItemRelics.BtnActive = false;
-            mainMenuUI.invenEquipRelics.BtnActive = false;
-            ItemUIUpdate();
             HideInteractText();
         }
 
@@ -48,7 +42,10 @@ public abstract class InteractableObject : MonoBehaviour
 
     protected void OnInteract(InputAction.CallbackContext context)
     {
-        Interact();
+        if(canInteract)
+        {
+            Interact();
+        }
     }
 
     public abstract void Interact();
@@ -69,9 +66,5 @@ public abstract class InteractableObject : MonoBehaviour
         }
     }
 
-    private void ItemUIUpdate()
-    {
-        mainMenuUI.invenItemRelics.UpdateItemUI();
-        mainMenuUI.invenEquipRelics.UpdateItemUI();
-    }
+
 }
